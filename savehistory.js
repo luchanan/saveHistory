@@ -63,10 +63,31 @@
             return this.getLocalStorage()[this.settings.historyName].length>=this.settings.historyLength?true:false;
         },
         existUrl:function(){
+            //模糊查找URL
+        },
+        getUrlIndex:function(){
 
         },
-        go:function(){
-            window.history.go(-1);
+        go:function(num){
+            if(isNaN(num)){
+                console.error("请输入数字类型");
+                return;
+            }
+            var num=Number(num);
+            var history=this.getLocalStorage()[this.settings.historyName];
+            var len=history.length;
+            if(num>0){
+                //整数
+                window.locaton.href="";
+            }
+            else if(num<0){
+                //负数
+                console.log(decodeURIComponent(history[len-Math.abs(num)]));
+                window.location.href=decodeURIComponent(history[len-Math.abs(num)]);
+            }
+            else{
+                window.location.href="";
+            }
         },
         getLocalStorage:function(){
             return JSON.parse(window.localStorage.getItem(this.settings.name));
