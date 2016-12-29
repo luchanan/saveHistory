@@ -32,26 +32,28 @@
             }
         },
         saveUrl2Array:function(){
-            var currentUrl=encodeURIComponent(window.location.href);
+            this.settings.currentUrl=this.encodeUrl(window.location.href);
             var currentTime=(new Date()).getTime();
             var storage={};
             if(this.existStorageName()){
                 //存在
                 storage=this.getLocalStorage();
                 storage[this.settings.timeName]=this.useCurrentTime?currentTime:storage[this.settings.timeName];
-                if(!this.isMax()){
-                    storage[this.settings.historyName].push(currentUrl);
-                    this.removeStorage();
-                }
-                else{
-                    console.warn("历史记录数达到了最大值！");
+                if(!this.existUrl()){
+                    if(!this.isMax()){
+                        storage[this.settings.historyName].push(this.settings.currentUrl);
+                        this.removeStorage();
+                    }
+                    else{
+                        console.warn("历史记录数达到了最大值！");
+                    }
                 }
             }
             else{
                 //不存在
                 storage[this.settings.timeName]=currentTime;
                 storage[this.settings.historyName]=[];
-                storage[this.settings.historyName].push(currentUrl);
+                storage[this.settings.historyName].push(this.settings.currentUrl);
             }
             console.dirxml(storage);
             window.localStorage.setItem(this.settings.name,JSON.stringify(storage));
@@ -64,6 +66,15 @@
         },
         existUrl:function(){
             //模糊查找URL
+            var _this=this;
+            var exist=false;
+            $.each(_this.getLocalStorage()[_this.settings.historyName],function(k,v){
+                if(v==_this.settings.currentUrl){
+                    exist=true;
+                    return false;
+                }
+            });
+            return exist;
         },
         getUrlIndex:function(){
 
@@ -82,12 +93,17 @@
             }
             else if(num<0){
                 //负数
-                console.log(decodeURIComponent(history[len-Math.abs(num)]));
-                window.location.href=decodeURIComponent(history[len-Math.abs(num)]);
+                window.location.href=this.decodeUrl(history[len-Math.abs(num)]);
             }
             else{
                 window.location.href="";
             }
+        },
+        encodeUrl:function(url){
+            return encodeURIComponent(url);
+        },
+        decodeUrl:function(url){
+            return decodeURIComponent(url);
         },
         getLocalStorage:function(){
             return JSON.parse(window.localStorage.getItem(this.settings.name));
